@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-(p7)syj&1xx8yhyzepc!j
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False' 
 
 # ⬇️ 【修正】Renderホスト名とローカルホストを許可
-ALLOWED_HOSTS = ['.render.com', '127.0.0.1']
+ALLOWED_HOSTS = ['.render.com', '127.0.0.1','manga-journal-site.onrender.com']
 
 
 # Application definition
