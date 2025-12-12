@@ -1,0 +1,132 @@
+/* static/css/custom_carousel.css (修正案 3) */
+
+/* 1. 全体ラッパー: 左右のアイテムが見えるように */
+.custom-carousel-wrapper {
+    position: relative;
+    max-width: 900px; 
+    margin: 40px auto; 
+    /* overflow: visible にすることで左右にはみ出すアイテムが見える */
+    overflow: visible; 
+    /* 左右の矢印のためのスペースを確保しつつ、中央配置の調整 */
+    padding: 0 50px; 
+}
+
+/* 2. カルーセルコンテナ: 3D空間とアイテムの絶対配置の基準 */
+.custom-carousel {
+    /* height は固定。アイテムを重ねるために position: relative にする */
+    position: relative;
+    height: 400px; 
+    transform-style: preserve-3d; 
+}
+
+/* 3. 個別アイテムの共通設定 */
+.carousel-item-custom {
+    /* 【重要】すべてのアイテムを中央の同じ位置に絶対配置する */
+    position: absolute; 
+    top: 0;
+    left: 50%; /* 左端から50%の位置 */
+    transform-origin: center center; /* 変形の中心をアイテム中央に設定 */
+    
+    width: 60%; 
+    height: 100%;
+    
+    background-color: #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    
+    /* スムーズなアニメーション */
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; 
+}
+
+.carousel-item-custom img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    display: block;
+}
+
+
+/* 4. 【キーとなる変形】クラスごとの配置定義 */
+
+/* 中央アイテム */
+.carousel-item-custom.center {
+    /* アイテム自体の幅の半分だけ左に戻し、中央に配置 (transform: translate(-50%)) */
+    /* Z軸はそのまま (translateZ(0))、拡大 (scale(1.1)) */
+    transform: translateX(-50%) translateZ(0) scale(1.1);
+    opacity: 1;
+    z-index: 10; /* 最前面 */
+    cursor: default;
+}
+
+/* 左隣のアイテム (右側の50%が見える状態にする) */
+.carousel-item-custom.left {
+    /* 左に移動 (translateX(-85%))、Z軸を奥に (translateZ(-200px))、縮小 (scale(0.85)) */
+    transform: translateX(-85%) translateZ(-200px) scale(0.85); 
+    opacity: 0.7;
+    z-index: 5;
+    cursor: pointer;
+}
+
+/* 右隣のアイテム (左側の50%が見える状態にする) */
+.carousel-item-custom.right {
+    /* 右に移動 (translateX(-15%))、Z軸を奥に (translateZ(-200px))、縮小 (scale(0.85)) */
+    transform: translateX(-15%) translateZ(-200px) scale(0.85); 
+    opacity: 0.7;
+    z-index: 5;
+    cursor: pointer;
+}
+
+/* 左右に隠れていて、次に回ってくるアイテム */
+.carousel-item-custom.prev-left,
+.carousel-item-custom.next-right {
+    /* 左右の視界外へ移動 */
+    transform: translateX(-50%) translateZ(-300px) scale(0.7); 
+    opacity: 0;
+    z-index: 3;
+}
+
+/* その他の非表示アイテム */
+.carousel-item-custom.hidden {
+    /* さらに奥に引っ込め、完全に非表示 */
+    transform: translateX(-50%) translateZ(-500px) scale(0.5); 
+    opacity: 0;
+    z-index: 1;
+}
+
+
+/* 5. ナビゲーションボタン (位置を再調整) */
+.carousel-control-prev-custom,
+.carousel-control-next-custom {
+    /* wrapper に相対的な絶対配置 */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    color: white;
+    cursor: pointer;
+    z-index: 30; /* 最上位 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-control-prev-custom {
+    /* ラッパーの左端に配置 */
+    left: 0; 
+}
+
+.carousel-control-next-custom {
+    /* ラッパーの右端に配置 */
+    right: 0; 
+}
+
+.carousel-control-prev-custom:hover,
+.carousel-control-next-custom:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}

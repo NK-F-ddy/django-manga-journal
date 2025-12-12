@@ -1,0 +1,343 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私の家具コレクション | JOURNAL風スライドショー</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    {# ⬇️ カスタムCSSの読み込み #}
+    <link rel="stylesheet" href="{% static 'css/custom_carousel.css' %}">
+    
+    <style>
+        /* 全体設定 */
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN', Meiryo, メイリオ, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        /* ヘッダー */
+        .page-header {
+            padding: 50px 0 30px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .page-header h1 {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        /* カルーセルセクションのカスタムスタイル */
+        .featured-carousel-container {
+            background-color: #ffffff;
+            padding-bottom: 80px; 
+            padding-top: 40px;
+            position: relative; 
+            z-index: 10; 
+        }
+        .carousel-inner-custom {NK_F_ddy
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            /* 修正済み：最大幅をさらに増加 */
+            max-width: 1200px; 
+            position: relative;
+        }
+        .carousel-item-aspect {
+            padding-top: 56.25%; /* 16:9の比率 */
+            position: relative;
+            width: 100%;
+        }
+        .carousel-item-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important; 
+            height: 100% !important; 
+            /* 縦長も切れずに表示するため contain を使用 */
+            background-size: contain !important; 
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            background-color: transparent !important;
+        }
+        .carousel-caption {
+            background-color: transparent; 
+            padding: 0;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+            right: 0;
+            margin: 0;
+        }
+
+        /* ------------------------------------- */
+        /* 【重要】カスタムカルーセルのCSS (JS連携) */
+        /* ------------------------------------- */
+        .custom-carousel-wrapper {
+            position: relative;
+            /* 修正済み：カルーセル全体の最大幅 */
+            max-width: 1200px; 
+            margin: 40px auto; 
+            overflow: visible; 
+            padding: 0 50px; 
+        }
+
+        .custom-carousel {
+            position: relative;
+            /* 修正済み：カルーセル全体の高さを増加 */
+            height: 650px; 
+            transform-style: preserve-3d; 
+        }
+
+        .carousel-item-custom {
+            position: absolute; 
+            top: 0;
+            left: 50%;
+            transform-origin: center center;
+            
+            /* 修正済み：アイテム自体の幅を増加 */
+            width: 80%; 
+            height: 100%;
+            
+            background-color: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            cursor: default;
+        }
+
+        .carousel-item-custom img {
+            width: 100%;
+            height: 100%;
+            /* 修正済み：縦長写真も切れないように 'contain' に変更 */
+            object-fit: contain; 
+            background-color: #f0f0f0; /* 余白の色 */
+            display: block;
+        }
+
+        /* 中央アイテム */
+        .carousel-item-custom.center {
+            transform: translateX(-50%) translateZ(0) scale(1.1);
+            opacity: 1;
+            z-index: 10; 
+            cursor: default;
+        }
+
+        /* 左隣のアイテム */
+        .carousel-item-custom.left {
+            transform: translateX(-85%) translateZ(-200px) scale(0.85); 
+            opacity: 0.7;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* 右隣のアイテム */
+        .carousel-item-custom.right {
+            transform: translateX(-15%) translateZ(-200px) scale(0.85); 
+            opacity: 0.7;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* その他の非表示アイテム */
+        .carousel-item-custom.hidden {
+            transform: translateX(-50%) translateZ(-500px) scale(0.5); 
+            opacity: 0;
+            z-index: 1;
+        }
+
+
+        /* ナビゲーションボタン */
+        .carousel-control-prev-custom,
+        .carousel-control-next-custom {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.4);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            cursor: pointer;
+            z-index: 30; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        .carousel-control-prev-custom { left: 0; }
+        .carousel-control-next-custom { right: 0; }
+        .carousel-control-prev-custom:hover, .carousel-control-next-custom:hover { background-color: rgba(0, 0, 0, 0.6); }
+        .carousel-control-prev-custom .carousel-control-prev-icon, .carousel-control-next-custom .carousel-control-next-icon {
+            width: 20px;
+            height: 20px;
+            background-size: 100%, 100%;
+        }
+        /* ------------------------------------- */
+
+
+        /* 個別家具カード (記事一覧用) */
+        .card-link-wrapper {
+            text-decoration: none; 
+            color: inherit; 
+            display: flex; 
+            width: 100%;
+            height: 100%;
+        }
+
+        .furniture-card {
+            border: none;
+            border-radius: 0;
+            margin-bottom: 0; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+            background-color: white;
+            height: 100%;
+            width: 100%; 
+            display: flex; 
+            flex-direction: column;
+        }
+        .card-link-wrapper:hover .furniture-card { 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .card-image-wrapper {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background-color: #f0f4f7;
+        }
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain !important; 
+            transition: transform 0.5s ease;
+            display: block;
+        }
+        .card-link-wrapper:hover .card-image {
+            transform: scale(1.03);
+        }
+        .image-placeholder {
+            color: #a0a0a0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card-content {
+            padding: 20px;
+            flex-grow: 1; 
+        }
+        .item-category {
+            display: inline-block;
+            background-color: #e9f5f5;
+            color: #2ecc71;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .item-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        .container.main-content {
+            margin-top: 0 !important;
+            padding-top: 0; 
+            clear: both; 
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="featured-carousel-container">
+        <header class="page-header">
+            <h1 class="mb-2">My Furniture Journal 🛋️</h1>
+            <p class="lead">私が愛用する家具と、それを選んだ理由。</p>
+        </header>
+        
+        <div class="container-fluid">
+            {% if room_images %}
+                {# ⬇️ 【HTML】カスタムカルーセル構造 #}
+                <div class="custom-carousel-wrapper">
+                    <div class="custom-carousel" id="roomCarousel">
+                        {% for room_photo in room_images %}
+                            <div class="carousel-item-custom">
+                                <img src="{{ room_photo.room_photo.url }}" alt="Room Image {{ forloop.counter }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev-custom" type="button" data-direction="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next-custom" type="button" data-direction="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            {% else %}
+                <p class="text-center text-muted mb-0">部屋のコーディネート画像がありません。管理サイトから登録してください。</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="container main-content"> 
+        <h2 class="h4 mb-4 text-center text-muted border-bottom pb-2">【記事一覧：個別の家具アイテム】</h2>
+        
+        {% if items %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for item in items %}
+                <div class="col d-flex">
+                    <a href="{% url 'item-detail' item.pk %}" class="card-link-wrapper">
+                        <div class="furniture-card">
+                            
+                            <div class="card-image-wrapper">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" class="card-image" alt="{{ item.name }} の写真">
+                                {% else %}
+                                    <div class="image-placeholder">
+                                        画像なし
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-content">
+                                <span class="item-category">{{ item.type }}</span>
+                                <h2 class="item-title">{{ item.name }}</h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center mt-5" role="alert">
+                <h4 class="alert-heading">家具アイテムが見つかりません</h4>
+                <p>管理サイトからデータを追加してください。</p>
+            </div>
+        {% endif %}
+
+    </div>
+    
+    <footer class="text-center py-4 mt-5 bg-white border-top">
+        <p class="text-muted small mb-0">&copy; My Furniture Journal. All Rights Reserved.</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {# ⬇️ 【重要】カスタムJSの読み込み #}
+    <script src="{% static 'js/custom_carousel.js' %}"></script>
+</body>
+</html>

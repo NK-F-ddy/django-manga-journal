@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ item.name }} | 家具詳細</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f8f8; font-family: 'Hiragino Kaku Gothic ProN', sans-serif; }
+        .detail-card { 
+            padding: 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            border-radius: 8px;
+            background-color: white;
+        }
+        .item-image {
+            max-width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            background-color: #f0f4f7;
+            border-radius: 6px;
+        }
+        .rating-star {
+            font-size: 1.5rem;
+        }
+        .back-link {
+            font-size: 1rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <a href="{% url 'item_list' %}" class="back-link">&laquo; 一覧に戻る</a>
+
+        <div class="row detail-card">
+            <h1 class="mb-4">{{ item.name }}</h1>
+            
+            <div class="col-md-6 mb-4">
+                <h3 class="mb-3 text-muted">{{ item.type }}</h3>
+                
+                {# 評価とステータス #}
+                <div class="mb-4 border-bottom pb-3">
+                    <p class="mb-1">
+                        <strong>満足度:</strong> 
+                        {% for i in "1234567890" %}
+                            {% if forloop.counter <= item.rating %}
+                                <span class="rating-star" style="color: gold;">★</span>
+                            {% else %}
+                                <span class="rating-star" style="color: lightgray;">★</span>
+                            {% endif %}
+                        {% endfor %}
+                        ({{ item.rating }}/10)
+                    </p>
+                    <p class="mb-1">
+                        <strong>ステータス:</strong> 
+                        {% if item.is_discontinued %}
+                            <span class="badge bg-danger fs-6">製造中止</span>
+                        {% else %}
+                            <span class="badge bg-success fs-6">販売中</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                {# 詳細情報 #}
+                <h4 class="mt-4">製品情報・レビュー</h4>
+                <p><strong>製品説明:</strong> {{ item.description|default:"---" }}</p>
+                
+                {# 感想 #}
+                <div class="alert alert-info">
+                    <strong>ユーザーレビュー:</strong> {{ item.review|default:"まだ感想がありません。" }}
+                </div>
+
+                {# URLリンク #}
+                {% if item.shop_url %}
+                    <p class="mt-4">
+                        <a href="{{ item.shop_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+                            販売元オンラインストアを見る &raquo;
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 d-flex justify-content-center align-items-start">
+                {# 画像表示 #}
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" class="item-image" alt="{{ item.name }} の画像">
+                {% else %}
+                    <div class="item-image d-flex justify-content-center align-items-center border">画像なし</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
